@@ -1,0 +1,14 @@
+{
+  "name": "psvm-js",
+  "version": "1.0.0",
+  "description": "",
+  "preferGlobal": "true",
+  "bin": {
+    "psvm": "src/cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
