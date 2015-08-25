@@ -9,7 +9,7 @@ var lib = require('./lib'),
 
 function lsRemote () {
   lib.getReleases().then(function (releases) {
-    console.log('Available releases for download');
+    console.log('Available releases of Purescript: ');
     R.map(function (v) {
       console.log('\t', v);
     }, releases);
@@ -72,7 +72,7 @@ var cliParser = cliparse.cli({
   commands: [
     cliparse.command(
       "ls-remote",
-      { description: "List Purescript releases",
+      { description: "List releases available on the Purescript repo",
         args: [],
         options: []
       },
@@ -80,7 +80,7 @@ var cliParser = cliparse.cli({
 
     cliparse.command(
       "latest",
-      { description: "Get the latest available version of Purescript",
+      { description: "Print the latest available version of Purescript",
         args: [],
         options: []
       },
@@ -88,7 +88,7 @@ var cliParser = cliparse.cli({
 
     cliparse.command(
       "install",
-      { description: "Install a specified version of Purescript",
+      { description: "Install a specific version of Purescript",
         args: [cliparse.argument("version", { description: "version to install" })],
         options: []
       },
@@ -96,7 +96,7 @@ var cliParser = cliparse.cli({
 
     cliparse.command(
       "use",
-      { description: "Use a specific version",
+      { description: "Use the specified installed version of Purescript",
         args: [cliparse.argument("version", { description: "version to use" })],
         options: []
       },
@@ -104,7 +104,7 @@ var cliParser = cliparse.cli({
 
     cliparse.command(
       "ls",
-      { description: "List installed version of Purescript",
+      { description: "List installed versions of Purescript",
         args: [],
         options: []
       },
@@ -112,7 +112,7 @@ var cliParser = cliparse.cli({
 
     cliparse.command(
       "current",
-      { description: "Output the current version used of Purescript",
+      { description: "Output the used version of Purescript",
         args: [],
         options: []
       },
