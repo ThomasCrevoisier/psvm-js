@@ -3,9 +3,22 @@
   "version": "0.0.1",
   "description": "Purescript Version Manager",
   "preferGlobal": "true",
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/ThomasCrvsr/psvm-js.git"
+  },
   "bin": {
     "psvm": "src/cli.js"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^2.9.34",
+    "cliparse": "^0.2.5",
+    "got": "^4.1.1",
+    "nugget": "^1.5.4",
+    "ramda": "^0.17.1",
+    "rimraf": "^2.4.2",
+    "tarball-extract": "0.0.3"
+  }
 }
