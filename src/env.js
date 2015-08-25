@@ -1,21 +1,10 @@
 var paths = require('./paths'),
-    Promise = require('bluebird'),
-    fs = Promise.promisifyAll(require('fs'));
-
-function getUserHome() {
-  return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-}
-
-function createDirIfNotCreated (path) {
-  if (!fs.existsSync(path)) {
-    fs.mkdirSync(path);
-  }
-}
+    util = require('./util');
 
 function createPSVMEnv () {
-  createDirIfNotCreated(paths.PSVM_DIR);
-  createDirIfNotCreated(paths.PSVM_ARCHIVES);
-  createDirIfNotCreated(paths.PSVM_VERSIONS);
+  util.createNonExistingDir(paths.PSVM_DIR);
+  util.createNonExistingDir(paths.PSVM_ARCHIVES);
+  util.createNonExistingDir(paths.PSVM_VERSIONS);
 }
 
 module.exports = {

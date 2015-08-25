@@ -5,7 +5,7 @@ function getUserHome() {
 }
 
 module.exports = {
-  PSVM_DIR: path.join(getUserHome(), '.psvm-js'),
-  PSVM_ARCHIVES: path.join(getUserHome(), '.psvm-js', 'archives'),
-  PSVM_VERSIONS: path.join(getUserHome(), '.psvm-js', 'versions')
+  PSVM_DIR: path.join(getUserHome(), '.psvm'),
+  PSVM_ARCHIVES: path.join(getUserHome(), '.psvm', 'archives'),
+  PSVM_VERSIONS: path.join(getUserHome(), '.psvm', 'versions')
 }

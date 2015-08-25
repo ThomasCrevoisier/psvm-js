@@ -5,25 +5,24 @@ var got = require('got'),
     paths = require('./paths'),
     fs = require('fs'),
     os = require('os'),
-    tarball = require('tarball-extract'),
+    util = require('./util'),
+    Promise = require('bluebird'),
     PURESCRIPT_REPO_API_URL = 'https://api.github.com/repos/purescript/purescript',
     PURESCRIPT_DOWNLOAD_URL = 'https://github.com/purescript/purescript';
 
 function getReleases () {
   return got(PURESCRIPT_REPO_API_URL + '/releases')
-    .then(function (res) {
-      var response = JSON.parse(res.body);
-
-      return R.map(R.prop('tag_name'), response);
+    .then(util.parseResponseBody)
+    .then(function (body) {
+      return R.map(R.prop('tag_name'), body);
   });
 }
 
 function getLatestRelease () {
   return got(PURESCRIPT_REPO_API_URL + '/releases/latest')
-    .then(function (res) {
-      var response = JSON.parse(res.body);
-
-      return R.prop('tag_name', response);
+    .then(util.parseResponseBody)
+    .then(function (body) {
+      return R.prop('tag_name', body);
     });
 }
 
@@ -35,59 +34,45 @@ function getInstalledVersions () {
   }, dirs);
 }
 
-// TODO : refacto
-function createDirIfNotCreated (path) {
-  if (!fs.existsSync(path)) {
-    fs.mkdirSync(path);
-  }
-}
-
 function installVersion (version) {
+  var osType = getOSRelease();
+
   return getReleases()
     .then(function (releases) {
       if (R.contains(version, releases)) {
-        downloadVersion(version, function (err) {
-          if (err) {
-            throw err;
-          }
-
-          createDirIfNotCreated(path.join(paths.PSVM_VERSIONS, version));
-          tarball.extractTarball(path.join(paths.PSVM_ARCHIVES, version + '-macos.tar.gz'), path.join(paths.PSVM_VERSIONS, version), function(err){
-            if(err) console.log(err)
-          });
+        downloadVersion(version, osType)
+        .then(function () {
+          util.createNonExistingDir(path.join(paths.PSVM_VERSIONS, version));
+          return util.extract(path.join(paths.PSVM_ARCHIVES, version + '-' + osType + '.tar.gz'), path.join(paths.PSVM_VERSIONS, version));
         });
       } else {
-        throw "Version specified not found";
+        return new Promise(function (resolve, reject) {
+          reject("Version " + version + " not found");
+        });
       }
     });
 }
 
-function downloadVersion (version, cb) {
-  var osType = getOSRelease();
+function downloadVersion (version, os) {
+  var downloadURL = PURESCRIPT_DOWNLOAD_URL + '/releases/download/' + version + '/' + os + '.tar.gz';
 
-  var downloadURL = PURESCRIPT_DOWNLOAD_URL + '/releases/download/' + version + '/' + osType + '.tar.gz';
+  console.log('Downloading Purescript compiler ', version, ' for ', os);
 
-  nugget(downloadURL, {
-    target: version + '-' + osType + '.tar.gz',
+  return util.nuggetAsync(downloadURL, {
+    target: version + '-' + os + '.tar.gz',
     dir: paths.PSVM_ARCHIVES
-  }, cb);
+  });
 }
 
 function use (version) {
-  fs.createReadStream(path.join(paths.PSVM_VERSIONS, version, 'purescript', 'psc')).pipe(fs.createWriteStream('/usr/local/bin/psc-yolo'));
   var srcPath = path.join(paths.PSVM_VERSIONS, version, 'purescript'),
       destPath = '/usr/local/bin/';
 
-  copy(path.join(srcPath, 'psc'), path.join(destPath, 'psc'));
-  copy(path.join(srcPath, 'psc-bundle'), path.join(destPath, 'psc-bundle'));
-  copy(path.join(srcPath, 'psc-docs'), path.join(destPath, 'psc-docs'));
-  copy(path.join(srcPath, 'psc-publish'), path.join(destPath, 'psc-publish'));
-  copy(path.join(srcPath, 'psci'), path.join(destPath, 'psci'));
-}
-
-function copy (source, dest) {
-  fs.createReadStream(source)
-    .pipe(fs.createWriteStream(dest));
+  util.copy(path.join(srcPath, 'psc'), path.join(destPath, 'psc'));
+  util.copy(path.join(srcPath, 'psc-bundle'), path.join(destPath, 'psc-bundle'));
+  util.copy(path.join(srcPath, 'psc-docs'), path.join(destPath, 'psc-docs'));
+  util.copy(path.join(srcPath, 'psc-publish'), path.join(destPath, 'psc-publish'));
+  util.copy(path.join(srcPath, 'psci'), path.join(destPath, 'psci'));
 }
 
 function getOSRelease () {
@@ -102,10 +87,26 @@ function getOSRelease () {
   }
 }
 
+function getCurrentVersion () {
+  return util.command('psc --version');
+}
+
+function uninstallVersion (version) {
+  if (R.contains(version, getInstalledVersions())) {
+    return util.deleteDir(path.join(paths.PSVM_VERSIONS, version));
+  } else {
+    return new Promise(function (resolve, reject) {
+      reject('Version to uninstall not found');
+    })
+  }
+}
+
 module.exports = {
   getReleases: getReleases,
   getLatestRelease: getLatestRelease,
   getInstalledVersions: getInstalledVersions,
   installVersion: installVersion,
-  use: use
+  use: use,
+  getCurrentVersion: getCurrentVersion,
+  uninstallVersion: uninstallVersion
 };
