@@ -36,22 +36,40 @@ function extract (src, dest) {
   });
 }
 
+function rename (oldPath, newPath) {
+  return new Promise(function (resolve, reject) {
+    fs.rename(oldPath, newPath, function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    })
+  });
+}
+
 function parseResponseBody (res) {
   return JSON.parse(res.body);
 }
 
 function copy (source, dest) {
   return new Promise(function (resolve, reject) {
-    var stream = fs.createReadStream(source)
-      .pipe(fs.createWriteStream(dest));
+    var readStream = fs.createReadStream(source),
+        writeStream = fs.createWriteStream(dest);
 
-    stream.on('error', function (err) {
-        reject(err);
+    readStream.on('error', function (err) {
+      reject(err);
     });
 
-    stream.on('end', function () {
+    writeStream.on('error', function (err) {
+      reject(err);
+    });
+
+    writeStream.on('close', function () {
       resolve();
     });
+
+    readStream.pipe(writeStream);
   });
 }
 
@@ -85,6 +103,7 @@ module.exports = {
   nuggetAsync: nuggetAsync,
   createNonExistingDir: createNonExistingDir,
   extract: extract,
+  rename: rename,
   parseResponseBody: parseResponseBody,
   copy: copy,
   command: command,

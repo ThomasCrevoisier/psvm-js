@@ -112,7 +112,7 @@ var cliParser = cliparse.cli({
 
     cliparse.command(
       "current",
-      { description: "Output the used version of Purescript",
+      { description: "Output the current version used of Purescript",
         args: [],
         options: []
       },

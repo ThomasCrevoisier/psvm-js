@@ -40,11 +40,11 @@ function installVersion (version) {
   return getReleases()
     .then(function (releases) {
       if (R.contains(version, releases)) {
-        downloadVersion(version, osType)
-        .then(function () {
-          util.createNonExistingDir(path.join(paths.PSVM_VERSIONS, version));
-          return util.extract(path.join(paths.PSVM_ARCHIVES, version + '-' + osType + '.tar.gz'), path.join(paths.PSVM_VERSIONS, version));
-        });
+        return downloadVersion(version, osType)
+                .then(function () {
+                  util.createNonExistingDir(path.join(paths.PSVM_VERSIONS, version));
+                  return util.extract(path.join(paths.PSVM_ARCHIVES, version + '-' + osType + '.tar.gz'), path.join(paths.PSVM_VERSIONS, version));
+                });
       } else {
         return new Promise(function (resolve, reject) {
           reject("Version " + version + " not found");
@@ -66,13 +66,23 @@ function downloadVersion (version, os) {
 
 function use (version) {
   var srcPath = path.join(paths.PSVM_VERSIONS, version, 'purescript'),
-      destPath = '/usr/local/bin/';
+      destPath = path.join(paths.PSVM_CURRENT_BIN),
+      promises = [
+          util.copy(path.join(srcPath, 'psc'), path.join(destPath, 'psc')),
+          util.copy(path.join(srcPath, 'psc-bundle'), path.join(destPath, 'psc-bundle')),
+          util.copy(path.join(srcPath, 'psc-docs'), path.join(destPath, 'psc-docs')),
+          util.copy(path.join(srcPath, 'psc-publish'), path.join(destPath, 'psc-publish')),
+          util.copy(path.join(srcPath, 'psci'), path.join(destPath, 'psci'))
+      ];
 
-  util.copy(path.join(srcPath, 'psc'), path.join(destPath, 'psc'));
-  util.copy(path.join(srcPath, 'psc-bundle'), path.join(destPath, 'psc-bundle'));
-  util.copy(path.join(srcPath, 'psc-docs'), path.join(destPath, 'psc-docs'));
-  util.copy(path.join(srcPath, 'psc-publish'), path.join(destPath, 'psc-publish'));
-  util.copy(path.join(srcPath, 'psci'), path.join(destPath, 'psci'));
+  Promise.all(promises)
+    .then(function () {
+      fs.chmodSync(path.join(destPath, 'psc'), '0777');
+      fs.chmodSync(path.join(destPath, 'psc-bundle'), '0777');
+      fs.chmodSync(path.join(destPath, 'psc-docs'), '0777');
+      fs.chmodSync(path.join(destPath, 'psc-publish'), '0777');
+      fs.chmodSync(path.join(destPath, 'psci'), '0777');
+    });
 }
 
 function getOSRelease () {
