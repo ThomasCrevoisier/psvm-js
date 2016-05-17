@@ -50,6 +50,13 @@ function current () {
   lib.getCurrentVersion()
   .then(function (version) {
     console.log('Current version of Purescript: ', version);
+  }).catch(function (err) {
+	if (err.code === 127) {
+		console.log('psc was not found try install it with psvm install-latest');
+		console.log('try install the latest version running : psvm install-latest');
+	} else {
+		console.log(err.toString());
+	}
   });
 }
 
