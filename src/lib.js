@@ -98,7 +98,9 @@ function getOSRelease () {
 }
 
 function getCurrentVersion () {
-  return util.command('psc --version');
+  var cmd = path.join(paths.PSVM_CURRENT_BIN, 'psc') + ' --version';
+
+  return util.command(cmd);
 }
 
 function uninstallVersion (version) {
