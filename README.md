@@ -47,3 +47,4 @@ Let's run `psvm --help` to see what we can do:
 
 * some old version of Purescript only offer the source code, they will not be installed.
 * For the moment, it has only been tested on a MacOS. It should be usable on Linux too, normally.
+* psvm uses the GitHub API for some commands, which can lead to rate limiting, especially on CI services. If an environment variable `GITHUB_API_TOKEN` is set, it will be used for authenticating to the GitHub API.
