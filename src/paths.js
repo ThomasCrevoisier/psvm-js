@@ -4,10 +4,16 @@ function getUserHome() {
   return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 }
 
-module.exports = {
-  PSVM_DIR: path.join(getUserHome(), '.psvm'),
-  PSVM_ARCHIVES: path.join(getUserHome(), '.psvm', 'archives'),
-  PSVM_VERSIONS: path.join(getUserHome(), '.psvm', 'versions'),
-  PSVM_CURRENT: path.join(getUserHome(), '.psvm', 'current'),
-  PSVM_CURRENT_BIN: path.join(getUserHome(), '.psvm', 'current', 'bin'),
+function getPsvmHome() {
+  return process.env.PSVM_HOME || path.join(getUserHome(), '.psvm');
 }
+
+var home = getPsvmHome();
+
+module.exports = {
+  PSVM_DIR: home,
+  PSVM_ARCHIVES: path.join(home, 'archives'),
+  PSVM_VERSIONS: path.join(home, 'versions'),
+  PSVM_CURRENT: path.join(home, 'current'),
+  PSVM_CURRENT_BIN: path.join(home, 'current', 'bin'),
+};
