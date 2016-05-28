@@ -52,10 +52,12 @@ function current () {
     console.log('Current version of Purescript: ', version);
   }).catch(function (err) {
 	if (err.code === 127) {
-		console.log('psc was not found try install it with psvm install-latest\n');
-		console.log('> install the latest version running : psvm install-latest');
-		console.log('> list all the version installed running : psvm ls');
-		console.log('> use the one you want running : psvm use <VERSION>');
+		console.error('No versions of psc are installed.');
+		console.error('You can install the latest version by running : psvm install-latest');
+		console.error('List all the installed versions by running : psvm ls');
+		console.error('Select a version after installing it by running : psvm use <VERSION>');
+
+		process.exit(127);
 	} else {
 		console.log(err.toString());
 	}
