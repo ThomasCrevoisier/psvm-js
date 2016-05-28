@@ -31,11 +31,17 @@ function latest () {
 }
 
 function install (params) {
-  env.createPSVMEnv();
-  var version = params.args[0];
+	env.createPSVMEnv();
 
-  lib.installVersion(version)
-    .catch(console.log);
+	var version = params.args[0];
+
+	if (R.contains(version, lib.getInstalledVersions())) {
+		console.log('Version ' + version + ' is already installed');
+	} else {
+
+		lib.installVersion(version)
+			.catch(console.log);
+	}
 }
 
 function use (params) {
