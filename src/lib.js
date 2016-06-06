@@ -11,7 +11,7 @@ var got = require('got'),
     PURESCRIPT_DOWNLOAD_URL = 'https://github.com/purescript/purescript';
 
 function getReleases () {
-  return got(PURESCRIPT_REPO_API_URL + '/releases')
+  return gotGithubApi('/releases')
     .then(util.parseResponseBody)
     .then(function (body) {
       return R.map(R.prop('tag_name'), body);
@@ -19,11 +19,19 @@ function getReleases () {
 }
 
 function getLatestRelease () {
-  return got(PURESCRIPT_REPO_API_URL + '/releases/latest')
+  return gotGithubApi('/releases/latest')
     .then(util.parseResponseBody)
     .then(function (body) {
       return R.prop('tag_name', body);
     });
+}
+
+function gotGithubApi (path) {
+  return got(PURESCRIPT_REPO_API_URL + path, {
+    headers: process.env.GITHUB_API_TOKEN ?
+      { 'authorization': 'token ' + process.env.GITHUB_API_TOKEN } :
+      {}
+  });
 }
 
 function getInstalledVersions () {
