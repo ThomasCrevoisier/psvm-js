@@ -3,10 +3,10 @@ var got = require('got'),
     R = require('ramda'),
     path = require('path'),
     paths = require('./paths'),
-    fs = require('fs'),
     os = require('os'),
     util = require('./util'),
     Promise = require('bluebird'),
+    fs = Promise.promisifyAll(require('fs')),
     PURESCRIPT_REPO_API_URL = 'https://api.github.com/repos/purescript/purescript',
     PURESCRIPT_DOWNLOAD_URL = 'https://github.com/purescript/purescript';
 
@@ -35,11 +35,18 @@ function gotGithubApi (path) {
 }
 
 function getInstalledVersions () {
-  var dirs = fs.readdirSync(paths.PSVM_VERSIONS);
-
-  return R.filter(function (dir) {
-    return R.match(/v?\d+\.\d+\.\d+/, dir).length > 0;
-  }, dirs);
+    return fs.readdirAsync(paths.PSVM_VERSIONS)
+        .then(function (dirs) {
+            return R.filter(function (dir) {
+                return R.match(/v?\d+\.\d+\.\d+/, dir).length > 0;
+            }, dirs);
+        }, function (err) {
+            if (err.code === 'ENOENT') {
+                return [];
+            } else {
+                throw err;
+            }
+        });
 }
 
 function installVersion (version) {
