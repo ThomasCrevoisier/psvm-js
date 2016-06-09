@@ -18,11 +18,16 @@ function lsRemote() {
 }
 
 function ls() {
-	var versions = lib.getInstalledVersions();
-	console.log('Installed versions of Purescript');
-	R.map(function (v) {
-		console.log('\t', v);
-	}, R.reverse(versions));
+    lib.getInstalledVersions().then(function (versions) {
+        if (versions.length > 0) {
+            console.log('Installed versions of Purescript');
+            R.map(function (v) {
+                console.log('\t', v);
+            }, R.reverse(versions));
+        } else {
+            console.log('No installed version of Purescript found');
+        }
+    });
 }
 
 function latest() {
@@ -32,21 +37,24 @@ function latest() {
 }
 
 function install(params) {
-	env.createPSVMEnv();
+    env.createPSVMEnv();
 
-	var version = params.args[0];
+    var version = params.args[0];
 
-	if (R.contains(version, lib.getInstalledVersions())) {
-		console.log('Version ' + version + ' is already installed');
-	} else {
+    lib.getInstalledVersions()
+    .then(R.contains(version))
+    .then(function (isVersionInstalled) {
+        if (isVersionInstalled) {
+            console.log('Version ' + version + ' is already installed');
+        } else {
+            lib.installVersion(version)
+                .catch(function (err) {
+                    console.error(err);
 
-		lib.installVersion(version)
-			.catch(function (err) {
-				console.error(err);
-
-				process.exit(1);
-			});
-	}
+                    process.exit(1);
+                });
+        }
+    });
 }
 
 function use(params) {
