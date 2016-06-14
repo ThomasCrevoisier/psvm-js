@@ -4,11 +4,13 @@
 
 First, let's install psvm through npm : `npm install -g psvm`.
 
-FYI, psvm will create a directory `$HOME/.psvm` and will work in it.
+FYI, psvm will create a directory `$HOME/.psvm` and will work in it as the
+default directory. If you want to use a different directory, you can set an
+environment variable `PSVM_HOME`.
 
 It will :
-  * put versions of Purescript you download in `$HOME/.psvm/versions`
-  * put all bin files for the version you want to use in `$HOME/.psvm/current/bin`
+  * put versions of Purescript you download in `$HOME/.psvm/versions` (or `$PSVM_HOME/versions`, if `$PSVM_HOME` is set)
+  * put all bin files for the version you want to use in `$HOME/.psvm/current/bin` (or `$PSVM_HOME/current/bin`, if `$PSVM_HOME` is set)
 
 Because of the last point, it's necessary you add `$HOME/.psvm/current/bin` in your PATH.
 
@@ -45,3 +47,4 @@ Let's run `psvm --help` to see what we can do:
 
 * some old version of Purescript only offer the source code, they will not be installed.
 * For the moment, it has only been tested on a MacOS. It should be usable on Linux too, normally.
+* psvm uses the GitHub API for some commands, which can lead to rate limiting, especially on CI services. If an environment variable `GITHUB_API_TOKEN` is set, it will be used for authenticating to the GitHub API.
