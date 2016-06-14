@@ -86,6 +86,8 @@ function use (version) {
           util.copy(path.join(srcPath, 'psc'), path.join(destPath, 'psc')),
           util.copy(path.join(srcPath, 'psc-bundle'), path.join(destPath, 'psc-bundle')),
           util.copy(path.join(srcPath, 'psc-docs'), path.join(destPath, 'psc-docs')),
+          util.copy(path.join(srcPath, 'psc-ide-client'), path.join(destPath, 'psc-ide-client')),
+          util.copy(path.join(srcPath, 'psc-ide-server'), path.join(destPath, 'psc-ide-server')),
           util.copy(path.join(srcPath, 'psc-publish'), path.join(destPath, 'psc-publish')),
           util.copy(path.join(srcPath, 'psci'), path.join(destPath, 'psci'))
       ];
@@ -95,6 +97,8 @@ function use (version) {
       fs.chmodSync(path.join(destPath, 'psc'), '0777');
       fs.chmodSync(path.join(destPath, 'psc-bundle'), '0777');
       fs.chmodSync(path.join(destPath, 'psc-docs'), '0777');
+      fs.chmodSync(path.join(destPath, 'psc-ide-client'), '0777');
+      fs.chmodSync(path.join(destPath, 'psc-ide-server'), '0777');
       fs.chmodSync(path.join(destPath, 'psc-publish'), '0777');
       fs.chmodSync(path.join(destPath, 'psci'), '0777');
     });
