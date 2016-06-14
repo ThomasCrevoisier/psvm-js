@@ -1,4 +1,5 @@
-var got = require('got'),
+var glob = require('glob'),
+    got = require('got'),
     nugget = require('nugget'),
     R = require('ramda'),
     path = require('path'),
@@ -67,26 +68,12 @@ function downloadVersion (version, os) {
 function use (version) {
   var srcPath = path.join(paths.PSVM_VERSIONS, version, 'purescript'),
       destPath = path.join(paths.PSVM_CURRENT_BIN),
-      promises = [
-          util.copy(path.join(srcPath, 'psc'), path.join(destPath, 'psc')),
-          util.copy(path.join(srcPath, 'psc-bundle'), path.join(destPath, 'psc-bundle')),
-          util.copy(path.join(srcPath, 'psc-docs'), path.join(destPath, 'psc-docs')),
-          util.copy(path.join(srcPath, 'psc-ide-client'), path.join(destPath, 'psc-ide-client')),
-          util.copy(path.join(srcPath, 'psc-ide-server'), path.join(destPath, 'psc-ide-server')),
-          util.copy(path.join(srcPath, 'psc-publish'), path.join(destPath, 'psc-publish')),
-          util.copy(path.join(srcPath, 'psci'), path.join(destPath, 'psci'))
-      ];
-
-  Promise.all(promises)
-    .then(function () {
-      fs.chmodSync(path.join(destPath, 'psc'), '0777');
-      fs.chmodSync(path.join(destPath, 'psc-bundle'), '0777');
-      fs.chmodSync(path.join(destPath, 'psc-docs'), '0777');
-      fs.chmodSync(path.join(destPath, 'psc-ide-client'), '0777');
-      fs.chmodSync(path.join(destPath, 'psc-ide-server'), '0777');
-      fs.chmodSync(path.join(destPath, 'psc-publish'), '0777');
-      fs.chmodSync(path.join(destPath, 'psci'), '0777');
-    });
+      mg = new glob("**/psc*", {cwd: srcPath}, function (er, files) {
+        files = files.map(function(match) {
+            util.copy(path.join(srcPath, match), path.join(destPath, match));
+            fs.chmodSync(path.join(destPath, match), '0777');
+        });
+      })
 }
 
 function getOSRelease () {
