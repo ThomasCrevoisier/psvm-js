@@ -80,15 +80,17 @@ function downloadVersion(version, os) {
     });
 }
 
-function use (version) {
-  var srcPath = path.join(paths.PSVM_VERSIONS, version, 'purescript'),
-      destPath = path.join(paths.PSVM_CURRENT_BIN),
-      mg = new glob("**/psc*", {cwd: srcPath}, function (er, files) {
-        files = files.map(function(match) {
-            util.copy(path.join(srcPath, match), path.join(destPath, match));
-            fs.chmodSync(path.join(destPath, match), '0777');
+function use(version) {
+    var srcPath = path.join(paths.PSVM_VERSIONS, version, 'purescript'),
+        destPath = path.join(paths.PSVM_CURRENT_BIN),
+        mg = new glob("**/psc*", {
+            cwd: srcPath
+        }, function (er, files) {
+            files = files.map(function (match) {
+                util.copy(path.join(srcPath, match), path.join(destPath, match));
+                fs.chmodSync(path.join(destPath, match), '0777');
+            });
         });
-      });
 }
 
 function getOSRelease() {
