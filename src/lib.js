@@ -1,5 +1,4 @@
-var glob = require('glob'),
-    got = require('got'),
+var got = require('got'),
     nugget = require('nugget'),
     R = require('ramda'),
     path = require('path'),
@@ -8,6 +7,7 @@ var glob = require('glob'),
     util = require('./util'),
     Promise = require('bluebird'),
     fs = Promise.promisifyAll(require('fs')),
+	glob = Promise.promisify(require('glob')),
     PURESCRIPT_REPO_API_URL = 'https://api.github.com/repos/purescript/purescript',
     PURESCRIPT_DOWNLOAD_URL = 'https://github.com/purescript/purescript';
 
@@ -82,15 +82,17 @@ function downloadVersion(version, os) {
 
 function use(version) {
     var srcPath = path.join(paths.PSVM_VERSIONS, version, 'purescript'),
-        destPath = path.join(paths.PSVM_CURRENT_BIN),
-        mg = new glob("**/psc*", {
-            cwd: srcPath
-        }, function (er, files) {
-            files = files.map(function (match) {
-                util.copy(path.join(srcPath, match), path.join(destPath, match));
-                fs.chmodSync(path.join(destPath, match), '0777');
-            });
-        });
+        destPath = path.join(paths.PSVM_CURRENT_BIN);
+
+		glob('**/psc*', {cwd: srcPath}).then(function (files) {
+			return Promise.all(
+				R.map(function (file) {
+					return util.copy(path.join(srcPath, file), path.join(destPath, file)).then(function () {
+						fs.chmodSync(path.join(destPath, file), '0777');
+					})
+				}, files)
+			);
+		});
 }
 
 function getOSRelease() {
