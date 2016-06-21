@@ -7,7 +7,7 @@ var got = require('got'),
     util = require('./util'),
     Promise = require('bluebird'),
     fs = Promise.promisifyAll(require('fs')),
-	glob = Promise.promisify(require('glob')),
+    glob = Promise.promisify(require('glob')),
     PURESCRIPT_REPO_API_URL = 'https://api.github.com/repos/purescript/purescript',
     PURESCRIPT_DOWNLOAD_URL = 'https://github.com/purescript/purescript';
 
@@ -80,34 +80,38 @@ function downloadVersion(version, os) {
     });
 }
 
-function cleanCurrentVersion () {
-	return glob('**/psc*', {cwd: paths.PSVM_CURRENT_BIN})
-	.then(function (files) {
-		return Promise.all(
-			R.map(function (file) {
-				return fs.unlink(path.join(paths.PSVM_CURRENT_BIN, file))
-			}, files)
-		);
-	});
+function cleanCurrentVersion() {
+    return glob('**/psc*', {
+            cwd: paths.PSVM_CURRENT_BIN
+        })
+        .then(function (files) {
+            return Promise.all(
+                R.map(function (file) {
+                    return fs.unlink(path.join(paths.PSVM_CURRENT_BIN, file))
+                }, files)
+            );
+        });
 }
 
 function use(version) {
     var srcPath = path.join(paths.PSVM_VERSIONS, version, 'purescript'),
         destPath = path.join(paths.PSVM_CURRENT_BIN);
 
-		cleanCurrentVersion()
-		.then(function () {
-			return glob('**/psc*', {cwd: srcPath});
-		})
-		.then(function (files) {
-			return Promise.all(
-				R.map(function (file) {
-					return util.copy(path.join(srcPath, file), path.join(destPath, file)).then(function () {
-						fs.chmodSync(path.join(destPath, file), '0777');
-					});
-				}, files)
-			);
-		});
+    cleanCurrentVersion()
+        .then(function () {
+            return glob('**/psc*', {
+                cwd: srcPath
+            });
+        })
+        .then(function (files) {
+            return Promise.all(
+                R.map(function (file) {
+                    return util.copy(path.join(srcPath, file), path.join(destPath, file)).then(function () {
+                        fs.chmodSync(path.join(destPath, file), '0777');
+                    });
+                }, files)
+            );
+        });
 }
 
 function getOSRelease() {
