@@ -107,7 +107,7 @@ function use(version) {
             return Promise.all(
                 R.map(function (file) {
                     return util.copy(path.join(srcPath, file), path.join(destPath, file)).then(function () {
-                        fs.chmodSync(path.join(destPath, file), '0777');
+                        return fs.chmodAsync(path.join(destPath, file), '0777');
                     });
                 }, files)
             );
