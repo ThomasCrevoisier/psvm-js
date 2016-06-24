@@ -7,6 +7,7 @@ var got = require('got'),
     util = require('./util'),
     Promise = require('bluebird'),
     fs = Promise.promisifyAll(require('fs')),
+    glob = Promise.promisify(require('glob')),
     PURESCRIPT_REPO_API_URL = 'https://api.github.com/repos/purescript/purescript',
     PURESCRIPT_DOWNLOAD_URL = 'https://github.com/purescript/purescript';
 
@@ -79,28 +80,37 @@ function downloadVersion(version, os) {
     });
 }
 
+function cleanCurrentVersion() {
+    return glob('psc*', {
+            cwd: paths.PSVM_CURRENT_BIN
+        })
+        .then(function (files) {
+            return Promise.all(
+                R.map(function (file) {
+                    return fs.unlink(path.join(paths.PSVM_CURRENT_BIN, file))
+                }, files)
+            );
+        });
+}
+
 function use(version) {
     var srcPath = path.join(paths.PSVM_VERSIONS, version, 'purescript'),
-        destPath = path.join(paths.PSVM_CURRENT_BIN),
-        promises = [
-            util.copy(path.join(srcPath, 'psc'), path.join(destPath, 'psc')),
-            util.copy(path.join(srcPath, 'psc-bundle'), path.join(destPath, 'psc-bundle')),
-            util.copy(path.join(srcPath, 'psc-docs'), path.join(destPath, 'psc-docs')),
-            util.copy(path.join(srcPath, 'psc-ide-client'), path.join(destPath, 'psc-ide-client')),
-            util.copy(path.join(srcPath, 'psc-ide-server'), path.join(destPath, 'psc-ide-server')),
-            util.copy(path.join(srcPath, 'psc-publish'), path.join(destPath, 'psc-publish')),
-            util.copy(path.join(srcPath, 'psci'), path.join(destPath, 'psci'))
-        ];
+        destPath = path.join(paths.PSVM_CURRENT_BIN);
 
-    Promise.all(promises)
+    cleanCurrentVersion()
         .then(function () {
-            fs.chmodSync(path.join(destPath, 'psc'), '0777');
-            fs.chmodSync(path.join(destPath, 'psc-bundle'), '0777');
-            fs.chmodSync(path.join(destPath, 'psc-docs'), '0777');
-            fs.chmodSync(path.join(destPath, 'psc-ide-client'), '0777');
-            fs.chmodSync(path.join(destPath, 'psc-ide-server'), '0777');
-            fs.chmodSync(path.join(destPath, 'psc-publish'), '0777');
-            fs.chmodSync(path.join(destPath, 'psci'), '0777');
+            return glob('psc*', {
+                cwd: srcPath
+            });
+        })
+        .then(function (files) {
+            return Promise.all(
+                R.map(function (file) {
+                    return util.copy(path.join(srcPath, file), path.join(destPath, file)).then(function () {
+                        return fs.chmodAsync(path.join(destPath, file), '0777');
+                    });
+                }, files)
+            );
         });
 }
 
