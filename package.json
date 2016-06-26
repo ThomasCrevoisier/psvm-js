@@ -1,6 +1,6 @@
 {
   "name": "psvm",
-  "version": "0.0.1-beta.2",
+  "version": "0.1.0",
   "description": "Purescript Version Manager",
   "preferGlobal": "true",
   "repository" : {
