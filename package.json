@@ -14,7 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "bluebird": "^2.9.34",
-    "cliparse": "^0.2.5",
+    "cliparse": "^0.2.6",
     "glob": "^7.0",
     "got": "^4.1.1",
     "nugget": "^1.5.4",
