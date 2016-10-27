@@ -116,11 +116,18 @@ function use(version) {
 
 function getOSRelease() {
     var OSName = os.platform();
+    var OSArch = os.arch();
+
+    if (os.arch() !== 'x64') {
+        throw 'Unsupported CPU architecture (need x64; saw: ' + OSArch + ')';
+    }
 
     if (OSName === 'darwin') {
         return 'macos';
     } else if (OSName === 'linux') {
         return 'linux64';
+    } else if (OSName === 'win32') {
+        return 'win64';
     } else {
         throw "Unsupported OS, sorry. :(";
     }
