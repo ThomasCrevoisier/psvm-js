@@ -72,7 +72,7 @@ function installVersion(version) {
 function downloadVersion(version, os) {
     var downloadURL = PURESCRIPT_DOWNLOAD_URL + '/releases/download/' + version + '/' + os + '.tar.gz';
 
-    console.log('Downloading Purescript compiler ', version, ' for ', os);
+    console.log('Downloading PureScript compiler ', version, ' for ', os);
 
     return util.nuggetAsync(downloadURL, {
         target: version + '-' + os + '.tar.gz',
@@ -122,7 +122,7 @@ function getOSRelease() {
     } else if (OSName === 'linux') {
         return 'linux64';
     } else {
-        throw "Unsupported OS, sorry bro.";
+        throw "Unsupported OS, sorry. :(";
     }
 }
 

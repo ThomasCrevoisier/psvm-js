@@ -10,7 +10,7 @@ var lib = require('./lib'),
 
 function lsRemote() {
     lib.getReleases().then(function (releases) {
-        console.log('Available releases of Purescript: ');
+        console.log('Available releases of PureScript: ');
         R.map(function (v) {
             console.log('\t', v);
         }, releases);
@@ -20,19 +20,19 @@ function lsRemote() {
 function ls() {
     lib.getInstalledVersions().then(function (versions) {
         if (versions.length > 0) {
-            console.log('Installed versions of Purescript');
+            console.log('Installed versions of PureScript');
             R.map(function (v) {
                 console.log('\t', v);
             }, R.reverse(versions));
         } else {
-            console.log('No installed version of Purescript found');
+            console.log('No installed version of PureScript found');
         }
     });
 }
 
 function latest() {
     lib.getLatestRelease().then(function (release) {
-        console.log('Latest version of Purescript available:', release);
+        console.log('Latest version of PureScript available:', release);
     });
 }
 
@@ -60,7 +60,7 @@ function install(params) {
 function use(params) {
     var version = params.args[0];
 
-    console.log('Switching to Purescript :', version);
+    console.log('Switching to PureScript :', version);
 
     lib.use(version);
 }
@@ -68,7 +68,7 @@ function use(params) {
 function current() {
     lib.getCurrentVersion()
         .then(function (version) {
-            console.log('Current version of Purescript: ', version);
+            console.log('Current version of PureScript: ', version);
         }).catch(function (err) {
             if (err.code === 127) {
                 console.error('No versions of psc are installed.');
@@ -97,12 +97,12 @@ function uninstall(params) {
 
 var cliParser = cliparse.cli({
     name: "psvm",
-    description: "Purescript version manager",
+    description: "PureScript version manager",
     version: pkgJson.version,
     commands: [
         cliparse.command(
             "ls-remote", {
-                description: "List releases available on the Purescript repo",
+                description: "List releases available on the PureScript repo",
                 args: [],
                 options: []
             },
@@ -110,7 +110,7 @@ var cliParser = cliparse.cli({
 
         cliparse.command(
             "latest", {
-                description: "Print the latest available version of Purescript",
+                description: "Print the latest available version of PureScript",
                 args: [],
                 options: []
             },
@@ -118,7 +118,7 @@ var cliParser = cliparse.cli({
 
         cliparse.command(
             "install", {
-                description: "Install a specific version of Purescript",
+                description: "Install a specific version of PureScript",
                 args: [cliparse.argument("version", {
                     description: "version to install"
                 })],
@@ -128,7 +128,7 @@ var cliParser = cliparse.cli({
 
         cliparse.command(
             "use", {
-                description: "Use the specified installed version of Purescript",
+                description: "Use the specified installed version of PureScript",
                 args: [cliparse.argument("version", {
                     description: "version to use"
                 })],
@@ -138,7 +138,7 @@ var cliParser = cliparse.cli({
 
         cliparse.command(
             "ls", {
-                description: "List installed versions of Purescript",
+                description: "List installed versions of PureScript",
                 args: [],
                 options: []
             },
@@ -146,7 +146,7 @@ var cliParser = cliparse.cli({
 
         cliparse.command(
             "current", {
-                description: "Output the current version used of Purescript",
+                description: "Output the current version used of PureScript",
                 args: [],
                 options: []
             },
@@ -154,7 +154,7 @@ var cliParser = cliparse.cli({
 
         cliparse.command(
             "install-latest", {
-                description: "Install the latest version of Purescript",
+                description: "Install the latest version of PureScript",
                 args: [],
                 options: []
             },
@@ -162,7 +162,7 @@ var cliParser = cliparse.cli({
 
         cliparse.command(
             "uninstall", {
-                description: "Uninstall a specific version of Purescript",
+                description: "Uninstall a specific version of PureScript",
                 args: [cliparse.argument("version", {
                     description: "version to uninstall"
                 })],
