@@ -8,6 +8,7 @@ var got = require('got'),
     Promise = require('bluebird'),
     fs = Promise.promisifyAll(require('fs')),
     glob = Promise.promisify(require('glob')),
+    semver = require('semver'),
     PURESCRIPT_REPO_API_URL = 'https://api.github.com/repos/purescript/purescript',
     PURESCRIPT_DOWNLOAD_URL = 'https://github.com/purescript/purescript';
 
@@ -15,7 +16,8 @@ function getReleases() {
     return gotGithubApi('/releases')
         .then(util.parseResponseBody)
         .then(function (body) {
-            return R.map(R.prop('tag_name'), body);
+            var releases = R.map(R.prop('tag_name'), body);
+            return R.filter(releases => semver.valid(releases), releases);
         });
 }
 
@@ -38,9 +40,7 @@ function gotGithubApi(path) {
 function getInstalledVersions() {
     return fs.readdirAsync(paths.PSVM_VERSIONS)
         .then(function (dirs) {
-            return R.filter(function (dir) {
-                return R.match(/v?\d+\.\d+\.\d+/, dir).length > 0;
-            }, dirs);
+            return R.filter(semver.valid, dirs);
         }, function (err) {
             if (err.code === 'ENOENT') {
                 return [];
@@ -55,11 +55,13 @@ function installVersion(version) {
 
     return getReleases()
         .then(function (releases) {
-            if (R.contains(version, releases)) {
-                return downloadVersion(version, osType)
+            var matchingVersion = semver.maxSatisfying(releases, version);
+
+            if (matchingVersion) {
+                return downloadVersion(matchingVersion, osType)
                     .then(function () {
-                        util.createNonExistingDir(path.join(paths.PSVM_VERSIONS, version));
-                        return util.extract(path.join(paths.PSVM_ARCHIVES, version + '-' + osType + '.tar.gz'), path.join(paths.PSVM_VERSIONS, version));
+                        util.createNonExistingDir(path.join(paths.PSVM_VERSIONS, matchingVersion));
+                        return util.extract(path.join(paths.PSVM_ARCHIVES, matchingVersion + '-' + osType + '.tar.gz'), path.join(paths.PSVM_VERSIONS, matchingVersion));
                     });
             } else {
                 return new Promise(function (resolve, reject) {
@@ -94,24 +96,35 @@ function cleanCurrentVersion() {
 }
 
 function use(version) {
-    var srcPath = path.join(paths.PSVM_VERSIONS, version, 'purescript'),
-        destPath = path.join(paths.PSVM_CURRENT_BIN);
+    return getInstalledVersions()
+    .then(function (versions) {
+      var versionFound = semver.maxSatisfying(versions, version);
 
-    cleanCurrentVersion()
-        .then(function () {
-            return glob('psc*', {
-                cwd: srcPath
+      if (versionFound) {
+        var srcPath = path.join(paths.PSVM_VERSIONS, versionFound, 'purescript'),
+            destPath = path.join(paths.PSVM_CURRENT_BIN);
+
+        console.log('Switching to PureScript :', versionFound);
+
+        return cleanCurrentVersion()
+            .then(function () {
+                return glob('psc*', {
+                    cwd: srcPath
+                });
+            })
+            .then(function (files) {
+                return Promise.all(
+                    R.map(function (file) {
+                        return util.copy(path.join(srcPath, file), path.join(destPath, file)).then(function () {
+                            return fs.chmodAsync(path.join(destPath, file), '0777');
+                        });
+                    }, files)
+                );
             });
-        })
-        .then(function (files) {
-            return Promise.all(
-                R.map(function (file) {
-                    return util.copy(path.join(srcPath, file), path.join(destPath, file)).then(function () {
-                        return fs.chmodAsync(path.join(destPath, file), '0777');
-                    });
-                }, files)
-            );
-        });
+      } else {
+        throw "No version found";
+      }
+    });
 }
 
 function getOSRelease() {
