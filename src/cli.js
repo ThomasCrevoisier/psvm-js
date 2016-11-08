@@ -60,9 +60,11 @@ function install(params) {
 function use(params) {
     var version = params.args[0];
 
-    console.log('Switching to PureScript :', version);
-
-    lib.use(version);
+    lib.use(version)
+    .catch(function (error) {
+      console.error(err);
+      process.exit(1);
+    });
 }
 
 function current() {

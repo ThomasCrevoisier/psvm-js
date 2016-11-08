@@ -40,9 +40,7 @@ function gotGithubApi(path) {
 function getInstalledVersions() {
     return fs.readdirAsync(paths.PSVM_VERSIONS)
         .then(function (dirs) {
-            return R.filter(function (dir) {
-                return R.match(/v?\d+\.\d+\.\d+/, dir).length > 0;
-            }, dirs);
+            return R.filter(semver.valid, dirs);
         }, function (err) {
             if (err.code === 'ENOENT') {
                 return [];
@@ -98,24 +96,35 @@ function cleanCurrentVersion() {
 }
 
 function use(version) {
-    var srcPath = path.join(paths.PSVM_VERSIONS, version, 'purescript'),
-        destPath = path.join(paths.PSVM_CURRENT_BIN);
+    return getInstalledVersions()
+    .then(function (versions) {
+      var versionFound = semver.maxSatisfying(versions, version);
 
-    cleanCurrentVersion()
-        .then(function () {
-            return glob('psc*', {
-                cwd: srcPath
+      if (versionFound) {
+        var srcPath = path.join(paths.PSVM_VERSIONS, versionFound, 'purescript'),
+            destPath = path.join(paths.PSVM_CURRENT_BIN);
+
+        console.log('Switching to PureScript :', versionFound);
+
+        return cleanCurrentVersion()
+            .then(function () {
+                return glob('psc*', {
+                    cwd: srcPath
+                });
+            })
+            .then(function (files) {
+                return Promise.all(
+                    R.map(function (file) {
+                        return util.copy(path.join(srcPath, file), path.join(destPath, file)).then(function () {
+                            return fs.chmodAsync(path.join(destPath, file), '0777');
+                        });
+                    }, files)
+                );
             });
-        })
-        .then(function (files) {
-            return Promise.all(
-                R.map(function (file) {
-                    return util.copy(path.join(srcPath, file), path.join(destPath, file)).then(function () {
-                        return fs.chmodAsync(path.join(destPath, file), '0777');
-                    });
-                }, files)
-            );
-        });
+      } else {
+        throw "No version found";
+      }
+    });
 }
 
 function getOSRelease() {
