@@ -3,12 +3,16 @@
   "version": "0.1.2",
   "description": "Purescript Version Manager",
   "preferGlobal": "true",
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/ThomasCrvsr/psvm-js.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ThomasCrvsr/psvm-js.git"
+  },
+  "scripts": {
+    "build-psvm-api": "pulp browserify --standalone psvm-api --to psvm-api.js",
+    "build-dev-psvm-api": "pulp --watch browserify --standalone psvm-api --to psvm-api.js"
   },
   "bin": {
-    "psvm": "src/cli.js"
+    "psvm": "index.js"
   },
   "author": "",
   "license": "MIT",
@@ -18,6 +22,7 @@
     "glob": "^7.0",
     "got": "^4.1.1",
     "nugget": "^1.5.4",
+    "pulp": "^10.0.0",
     "ramda": "^0.17.1",
     "rimraf": "^2.4.2",
     "tarball-extract": "0.0.3"
