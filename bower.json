@@ -12,7 +12,10 @@
     "purescript-argonaut": "^2.0.0",
     "purescript-aff": "^2.0.2",
     "purescript-affjax": "^3.0.2",
-    "purescript-strings": "^2.1.0"
+    "purescript-strings": "^2.1.0",
+    "purescript-node-fs-aff": "^3.0.0",
+    "purescript-node-os": "^1.1.0",
+    "purescript-node-fs": "^3.0.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^2.0.0"

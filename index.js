@@ -3,11 +3,8 @@
 var cliparse = require("cliparse"),
     parsers = cliparse.parsers;
 
-var lsRemoteCommand = require('./output/Command.LsRemote');
-
-function lsRemote () {
-  lsRemoteCommand.lsRemote();
-}
+var lsRemote = require('./output/Command.LsRemote').lsRemote;
+var ls = require('./output/Command.Ls').ls;
 
 var cliParser = cliparse.cli({
     name: "psvm",
@@ -21,6 +18,13 @@ var cliParser = cliparse.cli({
                 options: []
             },
             lsRemote)
+      , cliparse.command(
+          "ls", {
+              description: "List installed version of PureScript",
+              args: [],
+              options: []
+          },
+          ls)
     ]
 });
 
