@@ -3,11 +3,10 @@
 var cliparse = require("cliparse"),
     parsers = cliparse.parsers;
 
-var psvmAPI = require('./psvm-api.js');
+var lsRemoteCommand = require('./output/Command.LsRemote');
 
-
-function sayHello () {
-  psvmAPI.main();
+function lsRemote () {
+  lsRemoteCommand.lsRemote();
 }
 
 var cliParser = cliparse.cli({
@@ -16,12 +15,12 @@ var cliParser = cliparse.cli({
     version: "0.0.0",
     commands: [
         cliparse.command(
-            "say-hello", {
+            "ls-remote", {
                 description: "List releases available on the PureScript repo",
                 args: [],
                 options: []
             },
-            sayHello)
+            lsRemote)
     ]
 });
 
