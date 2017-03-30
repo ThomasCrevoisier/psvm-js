@@ -9,8 +9,6 @@ import Control.Monad.Eff.Console (log)
 
 import Control.Monad.Aff (launchAff)
 
-import Node.FS.Aff
-import Node.OS
 
 import Github (fetchReleases)
 
