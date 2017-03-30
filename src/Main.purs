@@ -9,7 +9,8 @@ import Control.Monad.Eff.Console (log)
 
 import Control.Monad.Aff (launchAff)
 
-import Github (fetchReleases, prettyPrintReleases)
+import Github (fetchReleases)
+import LsRemote.PrettyPrint (prettyPrintReleases)
 
 lsRemote = launchAff $ do
   releases <- fetchReleases

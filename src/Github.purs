@@ -36,14 +36,6 @@ instance githubReleaseEncode :: DecodeJson GithubRelease where
     tag_name <- obj .? "tag_name"
     pure $ GithubRelease { url, tag_name }
 
-
--- TODO : Move to a module Releases.PrettyPrint
-prettyPrintRelease :: GithubRelease -> String
-prettyPrintRelease (GithubRelease r) = r.tag_name
-
-prettyPrintReleases :: Array GithubRelease -> String
-prettyPrintReleases releases = joinWith "\n" $ ("\t" <> _) <$> prettyPrintRelease <$> releases
-
 -- TODO
 -- - Handle response status
 
