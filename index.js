@@ -3,10 +3,10 @@
 var cliparse = require("cliparse"),
     parsers = cliparse.parsers;
 
-var lib = require('./psvm-api');
+var lib = require('./output/Main');
 
 function lsRemote () {
-  console.log(lib.lsRemote);
+  lib.lsRemote();
 }
 
 function ls () {
