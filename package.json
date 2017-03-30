@@ -8,8 +8,8 @@
     "url": "https://github.com/ThomasCrvsr/psvm-js.git"
   },
   "scripts": {
-    "build-psvm-api": "pulp browserify --standalone psvm-api --to psvm-api.js",
-    "build-dev-psvm-api": "pulp --watch browserify --standalone psvm-api --to psvm-api.js"
+    "build": "pulp browserify --standalone psvm-api --to psvm-api.js",
+    "build-watch": "pulp --watch browserify --standalone psvm-api --to psvm-api.js"
   },
   "bin": {
     "psvm": "index.js"

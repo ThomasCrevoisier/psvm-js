@@ -1,11 +1,7 @@
-module Main (module Command.LsRemote, main) where
+module Main where
 
-import Prelude
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE, log)
+lsRemote :: String
+lsRemote = "plop"
 
-import Command.LsRemote
-
-main :: forall e. Eff (console :: CONSOLE | e) Unit
-main = do
-  log "Hello you !"
+ls :: String
+ls = "hey"
