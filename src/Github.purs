@@ -2,16 +2,16 @@ module Github where
 
 import Prelude
 
-import Data.Either
-import Data.String
-import Data.Argonaut.Decode
+import Data.Either (Either)
+import Data.String (joinWith)
+import Data.Argonaut.Decode (class DecodeJson, decodeJson, (.?))
 
-import Control.Monad.Eff.Class (liftEff)
-import Control.Monad.Eff.Console (log, CONSOLE)
+import Control.Monad.Eff.Console (CONSOLE)
 import Control.Monad.Aff (Aff)
 
 import Network.HTTP.Affjax (get, AJAX)
 
+-- TODO : use Reader monad to create a Github client
 baseUrl :: String
 baseUrl = "https://api.github.com"
 
@@ -36,6 +36,8 @@ instance githubReleaseEncode :: DecodeJson GithubRelease where
     tag_name <- obj .? "tag_name"
     pure $ GithubRelease { url, tag_name }
 
+
+-- TODO : Move to a module Releases.PrettyPrint
 prettyPrintRelease :: GithubRelease -> String
 prettyPrintRelease (GithubRelease r) = r.tag_name
 
@@ -44,9 +46,7 @@ prettyPrintReleases releases = joinWith "\n" $ ("\t" <> _) <$> prettyPrintReleas
 
 -- TODO
 -- - Handle response status
--- - Parse response
 
--- fetchReleases ::
 fetchReleases :: forall eff. Aff (ajax :: AJAX, console :: CONSOLE | eff) (Either String (Array GithubRelease))
 fetchReleases = do 
   res <- get purescriptReleaseUrl

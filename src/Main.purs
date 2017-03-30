@@ -2,21 +2,21 @@ module Main where
 
 import Prelude
 
-import Data.Either
+import Data.Either (Either(..))
 
-import Control.Monad.Eff.Class
-import Control.Monad.Eff.Console
+import Control.Monad.Eff.Class (liftEff)
+import Control.Monad.Eff.Console (log)
 
 import Control.Monad.Aff (launchAff)
-import Network.HTTP.Affjax (get)
 
 import Github (fetchReleases, prettyPrintReleases)
 
 lsRemote = launchAff $ do
   releases <- fetchReleases
-  case releases of
-       Left err -> liftEff $ log $ "Error while fetching PureScript releases : " <> err
-       Right releases' -> liftEff $ log $ "Releases available for PureScript : \n" <> prettyPrintReleases releases'
+  let message = case releases of
+                  Left err -> "Error while fetching PureScript releases : " <> err
+                  Right releases' -> "Releases available for PureScript : \n" <> prettyPrintReleases releases'
+  liftEff $ log message
 
 ls :: String
 ls = "hey"
