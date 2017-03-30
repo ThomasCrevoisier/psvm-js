@@ -10,7 +10,7 @@ function lsRemote () {
 }
 
 function ls () {
-  console.log(lib.ls);
+  lib.ls();
 }
 
 var cliParser = cliparse.cli({
