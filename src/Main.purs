@@ -9,12 +9,13 @@ import Control.Monad.Eff.Console (log)
 
 import Control.Monad.Aff (launchAff)
 
-
 import Github (fetchReleases)
 
 import Ls (installedVersions)
 import Ls.PrettyPrint (prettyPrintInstalledVersions)
 import LsRemote.PrettyPrint (prettyPrintReleases)
+
+import Current
 
 lsRemote = launchAff $ do
   releases <- fetchReleases
@@ -26,3 +27,5 @@ lsRemote = launchAff $ do
 ls = launchAff $ do
   versions <- installedVersions
   liftEff $ log $ "Installed versions of PureScript :\n" <> prettyPrintInstalledVersions versions
+
+current = printCurrentVersion

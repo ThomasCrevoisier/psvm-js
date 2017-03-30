@@ -13,6 +13,10 @@ function ls () {
   lib.ls();
 }
 
+function current () {
+  lib.current();
+}
+
 var cliParser = cliparse.cli({
     name: "psvm",
     description: "PureScript version manager",
@@ -32,6 +36,13 @@ var cliParser = cliparse.cli({
               options: []
           },
           ls)
+      , cliparse.command(
+          "current", {
+              description: "Print the current version used of PureScript",
+              args: [],
+              options: []
+          },
+          current)
     ]
 });
 
