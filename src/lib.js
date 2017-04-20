@@ -81,7 +81,7 @@ function downloadVersion(version, os) {
 }
 
 function cleanCurrentVersion() {
-    return glob('+(psc*|purs)', {
+    return glob('+(psc*|purs|purs.exe)', {
             cwd: paths.PSVM_CURRENT_BIN
         })
         .then(function (files) {
@@ -99,7 +99,7 @@ function use(version) {
 
     cleanCurrentVersion()
         .then(function () {
-            return glob('+(psc*|purs)', {
+            return glob('+(psc*|purs|purs.exe)', {
                 cwd: srcPath
             });
         })
