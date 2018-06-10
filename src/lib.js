@@ -87,7 +87,7 @@ function cleanCurrentVersion() {
         .then(function (files) {
             return Promise.all(
                 R.map(function (file) {
-                    return fs.unlink(path.join(paths.PSVM_CURRENT_BIN, file))
+                    return fs.unlink(path.join(paths.PSVM_CURRENT_BIN, file), function(err) { if (err) throw err;})
                 }, files)
             );
         });
@@ -140,7 +140,7 @@ function getCurrentVersion() {
 }
 
 function uninstallVersion(version) {
-    if (R.contains(version, getInstalledVersions())) {
+    if (R.composeP(getInstalledVersions(), R.contains(version))) {
         return util.deleteDir(path.join(paths.PSVM_VERSIONS, version));
     } else {
         return new Promise(function (resolve, reject) {
