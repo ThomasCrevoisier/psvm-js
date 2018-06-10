@@ -1,5 +1,5 @@
 var Promise = require('bluebird'),
-    tarball = require('tarball-extract'),
+    tar = require('tar'),
     fs = require('fs'),
     nugget = require('nugget'),
     process = require('child_process'),
@@ -24,16 +24,8 @@ function createNonExistingDir(path) {
 }
 
 function extract(src, dest) {
-    return new Promise(function (resolve, reject) {
-        console.log('Extracting ', src, ' into ', dest);
-        tarball.extractTarball(src, dest, function (err) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
+  console.log('Extracting ', src, ' into ', dest);
+  return tar.extract({ file: src, cwd: dest });
 }
 
 function rename(oldPath, newPath) {
