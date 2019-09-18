@@ -1,5 +1,7 @@
 # Purescript Version Manager
 
+:warning: **NOT MAINTAINED**, feel free to fork this project or use a better installation process :warning:
+
 ## Installation
 
 First, let's install psvm through npm : `npm install -g psvm`.
