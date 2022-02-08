@@ -1,6 +1,5 @@
 var got = require('got'),
     nugget = require('nugget'),
-    R = require('ramda'),
     path = require('path'),
     paths = require('./paths'),
     os = require('os'),
@@ -11,20 +10,18 @@ var got = require('got'),
     PURESCRIPT_REPO_API_URL = 'https://api.github.com/repos/purescript/purescript',
     PURESCRIPT_DOWNLOAD_URL = 'https://github.com/purescript/purescript';
 
-function getReleases() {
-    return gotGithubApi('/releases')
-        .then(util.parseResponseBody)
-        .then(function (body) {
-            return R.map(R.prop('tag_name'), body);
-        });
+async function getReleases() {
+    const res = await gotGithubApi('/releases');
+    const body = JSON.parse(res.body);
+
+    return body.map(({ tag_name }) => tag_name);
 }
 
 function getLatestRelease() {
-    return gotGithubApi('/releases/latest')
-        .then(util.parseResponseBody)
-        .then(function (body) {
-            return R.prop('tag_name', body);
-        });
+    const res = gotGithubApi('/releases/latest');
+    const body = JSON.parse(res.body);
+
+    return body.tag_name;
 }
 
 function gotGithubApi(path) {
@@ -35,38 +32,34 @@ function gotGithubApi(path) {
     });
 }
 
-function getInstalledVersions() {
-    return fs.readdirAsync(paths.PSVM_VERSIONS)
-        .then(function (dirs) {
-            return R.filter(function (dir) {
-                return R.match(/v?\d+\.\d+\.\d+/, dir).length > 0;
-            }, dirs);
-        }, function (err) {
-            if (err.code === 'ENOENT') {
-                return [];
-            } else {
-                throw err;
-            }
-        });
+async function getInstalledVersions() {
+    try {
+        const dirs = await fs.readdirAsync(paths.PSVM_VERSIONS);
+        return dirs.filter(/v?\d+\.\d+\.\d+/.test);
+    } catch (err) {
+        if (err.code === 'ENOENT') {
+            return [];
+        } else {
+            throw err;
+        }
+    }
 }
 
 function installVersion(version) {
-    var osType = getOSRelease();
+    const osType = getOSRelease();
+    const releases = await getReleases();
 
-    return getReleases()
-        .then(function (releases) {
-            if (R.contains(version, releases)) {
-                return downloadVersion(version, osType)
-                    .then(function () {
-                        util.createNonExistingDir(path.join(paths.PSVM_VERSIONS, version));
-                        return util.extract(path.join(paths.PSVM_ARCHIVES, version + '-' + osType + '.tar.gz'), path.join(paths.PSVM_VERSIONS, version));
-                    });
-            } else {
-                return new Promise(function (resolve, reject) {
-                    reject("Version " + version + " not found");
-                });
-            }
-        });
+    if (releases.includes(version)) {
+        await downloadVersion(version, osType);
+        const releaseArchivePath = path.join(paths.PSVM_ARCHIVES, `${version}-${osType}.tar.gz`)
+        const targetDir = path.join(paths.PSVM_VERSIONS, version);
+
+        util.createNonExistingDir(targetDir);
+
+        return util.extract(releaseArchivePath, targetDir);
+    } else {
+        throw `Version ${version} not found`
+    }
 }
 
 function downloadVersion(version, os) {
@@ -80,38 +73,26 @@ function downloadVersion(version, os) {
     });
 }
 
-function cleanCurrentVersion() {
-    return glob('+(psc*|purs|purs.exe)', {
-            cwd: paths.PSVM_CURRENT_BIN
-        })
-        .then(function (files) {
-            return Promise.all(
-                R.map(function (file) {
-                    return fs.unlink(path.join(paths.PSVM_CURRENT_BIN, file), function(err) { if (err) throw err;})
-                }, files)
-            );
-        });
+async function cleanCurrentVersion() {
+    const files = await glob('+(psc*|purs|purs.exe)', { cwd: paths.PSVM_CURRENT_BIN });
+
+    files.forEach(file => {
+        fs.unlink(path.join(paths.PSVM_CURRENT_BIN, file), function(err) { if (err) throw err;})
+    })
 }
 
-function use(version) {
-    var srcPath = path.join(paths.PSVM_VERSIONS, version, 'purescript'),
-        destPath = path.join(paths.PSVM_CURRENT_BIN);
+async function use(version) {
+    const srcPath = path.join(paths.PSVM_VERSIONS, version, 'purescript'),
+          destPath = path.join(paths.PSVM_CURRENT_BIN);
 
-    cleanCurrentVersion()
-        .then(function () {
-            return glob('+(psc*|purs|purs.exe)', {
-                cwd: srcPath
-            });
-        })
-        .then(function (files) {
-            return Promise.all(
-                R.map(function (file) {
-                    return util.copy(path.join(srcPath, file), path.join(destPath, file)).then(function () {
-                        return fs.chmodAsync(path.join(destPath, file), '0777');
-                    });
-                }, files)
-            );
-        });
+    await cleanCurrentVersion();
+
+    const files = await glob('+(psc*|purs|purs.exe)', { cwd: srcPath });
+    const copyExe = file =>
+        util.copy(path.join(srcPath, file), path.join(destPath, file))
+            .then(() => fs.chmodAsync(path.join(destPath, file), '0777'));
+
+    return Promise.all(files.map(copyExe));
 }
 
 function getOSRelease() {
@@ -140,10 +121,10 @@ function getCurrentVersion() {
 }
 
 function uninstallVersion(version) {
-    if (R.composeP(getInstalledVersions(), R.contains(version))) {
+    if (getInstalledVersions().includes(version)) {
         return util.deleteDir(path.join(paths.PSVM_VERSIONS, version));
     } else {
-        return new Promise(function (resolve, reject) {
+        return new Promise(function (_, reject) {
             reject('Version to uninstall not found');
         })
     }
