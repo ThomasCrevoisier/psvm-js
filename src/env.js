@@ -1,7 +1,7 @@
-var paths = require('./paths'),
-    util = require('./util');
+const paths = require("./paths");
+const util = require("./util");
 
-function createPSVMEnv () {
+function createPSVMEnv() {
   util.createNonExistingDir(paths.PSVM_DIR);
   util.createNonExistingDir(paths.PSVM_ARCHIVES);
   util.createNonExistingDir(paths.PSVM_VERSIONS);
@@ -10,5 +10,5 @@ function createPSVMEnv () {
 }
 
 module.exports = {
-  createPSVMEnv: createPSVMEnv
+  createPSVMEnv,
 };
