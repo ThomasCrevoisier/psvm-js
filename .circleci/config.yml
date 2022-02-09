@@ -1,0 +1,22 @@
+version: 2.1
+
+jobs:
+  test:
+    docker:
+      - image: cimg/node:16.13.1
+    steps:
+      - checkout
+      - run:
+          name: "Install dependencies"
+          command: "npm install"
+      - run:
+          name: "Check formatting"
+          command: "npm run format:check"
+      - run:
+          name: "Lint"
+          command: "npm run lint"
+
+workflows:
+  test-workflow:
+    jobs:
+      - test
